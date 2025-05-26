@@ -150,12 +150,40 @@
                 `;
             }
             // Advanced (hidden by default)
+            // Build material table HTML
+            function buildMaterialTable() {
+                const matLabels = {
+                    cast_aluminium: 'Cast Aluminium > 6% Si',
+                    aluminium: 'Aluminum Wrought alloy',
+                    softplastic: 'Soft plastic',
+                    hardplastic: 'Hard plastic',
+                    hardwood: 'Hard wood',
+                    wood: 'Soft wood',
+                    mdf: 'MDF',
+                    brass: 'Brass, Copper, Bronze',
+                    steel: 'Steel'
+                };
+                let table = `<div style='overflow-x:auto;'><table border='1' cellpadding='4' style='border-collapse:collapse;min-width:600px;font-size:0.95em;'>`;
+                table += `<caption style='font-weight:bold;margin-bottom:6px;'>Reference Table: Cutting Speeds and Tooth Feeds</caption>`;
+                table += `<tr style='background:#f0f0f0;'><th>Material</th><th>vc<br>(m/min)</th>`;
+                for (let d of diameterSteps) table += `<th>Ø ${d}mm<br>fz (mm/tooth)</th>`;
+                table += `</tr>`;
+                for (const [key, val] of Object.entries(materialData)) {
+                    table += `<tr><td>${matLabels[key]||key}</td><td>${val.vc}</td>`;
+                    for (let i = 0; i < diameterSteps.length; i++) {
+                        table += `<td>${val.fz[i] !== undefined ? val.fz[i].toFixed(3) : '-'}</td>`;
+                    }
+                    table += `</tr>`;
+                }
+                table += `</table></div>`;
+                return table;
+            }
             html += `<div id='advanced-section' style='display:none; margin-top:18px;'>
                 <strong>Suggested Cutting Speed (vc):</strong> ${vc} m/min<br>
                 <em>vc is the recommended surface speed between the tool and the material, depending on material and tool type.</em><br><br>
                 <strong>Suggested Tooth Feed (fz):</strong> ${fz} mm/tooth<br>
                 <em>fz is the recommended distance the tool advances per tooth per revolution (chip load).</em><br><br>
-                <hr style="margin:16px 0;">
+                <hr style=\"margin:16px 0;\">
                 <strong>Formulas Used:</strong><br>
                 <b>Spindle Speed (n):</b><br>
                 <code>n = (vc × 1000) / (π × d)</code><br>
@@ -170,6 +198,8 @@
                 z = number of teeth<br>
                 fz = tooth feed in mm/tooth</em><br><br>
                 ${adjustmentFormula}
+                <hr style=\"margin:16px 0;\">
+                ${buildMaterialTable()}
             </div>`;
             resultsDiv.innerHTML = html;
             // Show the toggle button
