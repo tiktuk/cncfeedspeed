@@ -221,8 +221,9 @@
                 refDiv.style = 'margin-top:12px;';
                 resultsDiv.parentNode.insertBefore(refDiv, resultsDiv.nextSibling);
             }
+            const prevDisplay = refDiv.style.display;
             refDiv.innerHTML = buildReferenceSection(adjustmentFormula);
-            refDiv.style.display = 'block';
+            if (prevDisplay) refDiv.style.display = prevDisplay;
 
             resultsDiv.innerHTML = html;
             // Show the toggle button
