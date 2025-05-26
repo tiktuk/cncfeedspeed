@@ -33,9 +33,9 @@
             <input type="number" id="z" name="z" step="1" min="1" required value="2">
             <small>How many cutting edges (flutes) are on your tool.</small>
 
-            <label for="maxrpm">Max Spindle Speed (optional)</label>
-            <input type="number" id="maxrpm" name="maxrpm" step="any" min="1" placeholder="e.g. 18000">
-            <small>Your machine's maximum spindle RPM. If set, the calculator will adjust for this limit.</small>
+            <label for="maxrpm">Max Spindle Speed</label>
+            <input type="number" id="maxrpm" name="maxrpm" step="any" min="1" placeholder="e.g. 18000" required>
+            <small>Your machine's maximum spindle RPM.</small>
 
             <label for="multiplier">Multiplier (optional)</label>
             <input type="number" id="multiplier" name="multiplier" step="0.01" min="0.1" value="1.00" placeholder="e.g. 1.20">
@@ -107,7 +107,7 @@
                   n = spindle speed in RPM<br>
                   z = number of teeth<br>
                   fz = tooth feed in mm/tooth</small>
-                  ${adjustmentFormula ? `<div style='margin:1em 0 0.5em 0;'>${adjustmentFormula}</div>` : ''}
+
                   <hr style='margin:1.5em 0;'>
                   ${buildMaterialTable()}
                 </section>
@@ -183,30 +183,25 @@
             let html = '';
             let adjustmentFormula = '';
             // Apply multiplier to calculated values
-            const n_mult = n * multiplier;
-            const vf_mult = vf * multiplier;
+            let n_used = n;
+            let spindleLimited = false;
+            if (maxrpm && n * multiplier > maxrpm) {
+                n_used = maxrpm / multiplier;
+                spindleLimited = true;
+            }
+            const n_mult = n_used * multiplier;
+            const vf_mult = n_mult * z * fz;
             let multiplierNote = '';
             if (multiplier !== 1.0) {
                 multiplierNote = `<div style='color:#0077cc;margin-bottom:8px;'><b>Note:</b> Multiplier of ${multiplier.toFixed(2)} applied to all calculated values.</div>`;
             }
-            if (maxrpm && maxrpm < n_mult) {
-                // Recalculate feed rate for max spindle speed, multiplier still applies to feed rate
-                const vf_new = maxrpm * z * fz * multiplier;
-                html += multiplierNote;
-                html += `<strong style=\"color:#c00\">Note:</strong> Your machine's max spindle speed (${maxrpm} RPM) is lower than the suggested value.<br><br>`;
-                html += `<strong>Adjusted Spindle Speed (n):</strong> ${maxrpm} RPM <span style=\"color:#888;\">(was: ${n_mult.toFixed(0)} RPM)</span><br>`;
-                html += `<strong>Adjusted Feed Rate (vf):</strong> ${vf_new.toFixed(2)} mm/min <span style=\"color:#888;\">(was: ${vf_mult.toFixed(2)} mm/min)</span><br>`;
-                adjustmentFormula = `<b>Adjusted Feed Rate:</b><br><code>vf = n<sub>max</sub> × z × fz × multiplier</code><br><em>vf = adjusted feed rate in mm/min<br>n<sub>max</sub> = your machine's max spindle speed (RPM)<br>z = number of teeth<br>fz = tooth feed in mm/tooth<br>multiplier = user multiplier</em><br><br>`;
-            } else {
-                // Basic results
-                html += multiplierNote;
-                html += `
-                    <strong>Spindle Speed (n):</strong> ${n_mult.toFixed(0)} RPM<br>
-                    <em>n is the calculated spindle speed required to achieve the suggested cutting speed, based on your cutter diameter.</em><br><br>
-                    <strong>Feed Rate (vf):</strong> ${vf_mult.toFixed(2)} mm/min<br>
-                    <em>vf is the calculated linear speed at which the tool should move through the material (feed rate).</em><br>
-                `;
+            let spindleNote = '';
+            if (spindleLimited) {
+                spindleNote = `<div style='color:#d9534f;margin-bottom:8px;'><b>Spindle speed limited to max: ${maxrpm} RPM.</b></div>`;
             }
+            html += multiplierNote + spindleNote;
+            html += `<strong>Spindle Speed (n):</strong> ${n_mult.toFixed(0)} RPM<br>`;
+            html += `<strong>Feed Rate (vf):</strong> ${vf_mult.toFixed(2)} mm/min<br>`;
             // Advanced (hidden by default)
             html += `<div id='advanced-section' style='display:none; margin-top:18px;'>
                 <strong>Suggested Cutting Speed (vc):</strong> ${vc} m/min<br>
@@ -216,9 +211,15 @@
             `;
             html += `</div>`;
             // Update reference section formula if needed
-            if (document.getElementById('reference-section')) {
-                document.getElementById('reference-section').innerHTML = buildReferenceSection(adjustmentFormula);
+            let refDiv = document.getElementById('reference-section');
+            if (!refDiv) {
+                refDiv = document.createElement('div');
+                refDiv.id = 'reference-section';
+                refDiv.style = 'margin-top:12px;';
+                resultsDiv.parentNode.insertBefore(refDiv, resultsDiv.nextSibling);
             }
+            refDiv.innerHTML = buildReferenceSection(adjustmentFormula);
+            refDiv.style.display = 'block';
 
             resultsDiv.innerHTML = html;
             // Show the toggle button
@@ -226,14 +227,15 @@
             toggleBtn.style.display = 'inline-block';
             toggleBtn.textContent = 'Show Advanced';
             // Hide advanced section by default
-            document.getElementById('advanced-section').style.display = 'none';
+            const advSection = document.getElementById('advanced-section');
+            if (advSection) advSection.style.display = 'none';
             // Toggle advanced section
             toggleBtn.onclick = function() {
                 const adv = document.getElementById('advanced-section');
-                if (adv.style.display === 'none') {
+                if (adv && adv.style.display === 'none') {
                     adv.style.display = 'block';
                     toggleBtn.textContent = 'Hide Advanced';
-                } else {
+                } else if (adv) {
                     adv.style.display = 'none';
                     toggleBtn.textContent = 'Show Advanced';
                 }
