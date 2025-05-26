@@ -159,6 +159,14 @@
         // Insert Reference button and section after form
         window.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('cncForm');
+            let resultsDiv = document.getElementById('results');
+            if (!resultsDiv) {
+                resultsDiv = document.createElement('div');
+                resultsDiv.id = 'results';
+                resultsDiv.className = 'results';
+                resultsDiv.style.display = 'none';
+                form.parentNode.insertBefore(resultsDiv, form.nextSibling);
+            }
             let refBtn = document.getElementById('toggle-reference');
             let refDiv = document.getElementById('reference-section');
             if (!refBtn) {
@@ -167,7 +175,7 @@
                 refBtn.type = 'button';
                 refBtn.style = 'margin:18px 0 0 0;display:block;';
                 refBtn.textContent = 'Show Reference';
-                form.parentNode.insertBefore(refBtn, form.nextSibling);
+                resultsDiv.parentNode.insertBefore(refBtn, resultsDiv.nextSibling);
             }
             if (!refDiv) {
                 refDiv = document.createElement('div');
