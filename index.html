@@ -84,6 +84,9 @@
             <label for="z">Number of Teeth (z)</label>
             <input type="number" id="z" name="z" step="1" min="1" required value="2">
 
+            <label for="maxrpm">Max Spindle Speed (optional)</label>
+            <input type="number" id="maxrpm" name="maxrpm" step="any" min="1" placeholder="e.g. 18000">
+
             <button type="submit">Calculate</button>
         </form>
         <div class="results" id="results" style="display:none;"></div>
@@ -125,13 +128,32 @@
             // Display results
             const resultsDiv = document.getElementById('results');
             resultsDiv.style.display = 'block';
-            // Basic results
-            let html = `
-                <strong>Spindle Speed (n):</strong> ${n.toFixed(0)} RPM<br>
-                <em>n is the calculated spindle speed required to achieve the suggested cutting speed, based on your cutter diameter.</em><br><br>
-                <strong>Feed Rate (vf):</strong> ${vf.toFixed(2)} mm/min<br>
-                <em>vf is the calculated linear speed at which the tool should move through the material (feed rate).</em><br>
-            `;
+            // Check for max spindle speed input
+            const maxrpmInput = document.getElementById('maxrpm');
+            const maxrpm = maxrpmInput && maxrpmInput.value ? parseFloat(maxrpmInput.value) : null;
+            let html = '';
+            if (maxrpm && maxrpm < n) {
+                // Recalculate feed rate for max spindle speed
+                const vf_new = maxrpm * z * fz;
+                html += `<strong style="color:#c00">Note:</strong> Your machine's max spindle speed (${maxrpm} RPM) is lower than the suggested value.<br><br>`;
+                html += `<strong>Adjusted Spindle Speed (n):</strong> ${maxrpm} RPM<br>`;
+                html += `<strong>Adjusted Feed Rate (vf):</strong> ${vf_new.toFixed(2)} mm/min<br>`;
+                html += `<em>Since your machine cannot reach the suggested spindle speed, set your spindle to its maximum and use the adjusted feed rate above.<br>
+                This keeps the chip load (tooth feed) correct for tool life and safety.<br><br>
+                <b>What to do if the suggested spindle speed is higher than your machine can do?</b><br>
+                1. Use your machine's maximum spindle speed.<br>
+                2. Recalculate the feed rate: <code>feed rate = max spindle speed × number of teeth × tooth feed</code>.<br>
+                3. Do not try to maintain the original feed rate.<br>
+                4. Accept a slightly lower cutting speed; tool life or finish may be a bit less optimal, but this is normal for smaller machines.</em><br><br>`;
+            } else {
+                // Basic results
+                html += `
+                    <strong>Spindle Speed (n):</strong> ${n.toFixed(0)} RPM<br>
+                    <em>n is the calculated spindle speed required to achieve the suggested cutting speed, based on your cutter diameter.</em><br><br>
+                    <strong>Feed Rate (vf):</strong> ${vf.toFixed(2)} mm/min<br>
+                    <em>vf is the calculated linear speed at which the tool should move through the material (feed rate).</em><br>
+                `;
+            }
             // Advanced (hidden by default)
             html += `<div id='advanced-section' style='display:none; margin-top:18px;'>
                 <strong>Suggested Cutting Speed (vc):</strong> ${vc} m/min<br>
