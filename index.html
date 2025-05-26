@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNC Feeds and Speeds Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 24px 32px 32px 32px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 18px;
+            font-size: 1.5em;
+        }
+        label {
+            display: block;
+            margin-top: 14px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 10px;
+            background: #0077cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #005fa3;
+        }
+        .results {
+            margin-top: 24px;
+            background: #e9f6ff;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CNC Feeds &amp; Speeds Calculator</h1>
+        <form id="cncForm">
+            <label for="material">Material</label>
+            <select id="material" name="material" required>
+                <option value="cast_aluminium">Cast-Aluminium (&gt;6% Si)</option>
+                <option value="aluminium">Aluminium (Wrought)</option>
+                <option value="softplastic">Softplastic</option>
+                <option value="hardplastic">Hardplastic</option>
+                <option value="hardwood">Hardwood</option>
+                <option value="wood">Wood</option>
+                <option value="mdf">MDF</option>
+                <option value="brass">Brass/Copper/Bronze</option>
+                <option value="steel">Steel</option>
+            </select>
+
+            <label for="d">Cutter Diameter (d) [mm]</label>
+            <input type="number" id="d" name="d" step="any" min="0.5" required>
+
+            <label for="z">Number of Teeth (z)</label>
+            <input type="number" id="z" name="z" step="1" min="1" required value="2">
+
+            <button type="submit">Calculate</button>
+        </form>
+        <div class="results" id="results" style="display:none;"></div>
+    </div>
+    <script>
+        // Table data for materials: [cutting speed, [tooth feeds for 1mm, 1.5mm, 2mm, 2.5mm, 3mm, 4mm]]
+        const materialData = {
+            cast_aluminium: { vc: 200, fz: [0.002, 0.003, 0.005, 0.007, 0.011, 0.015] },
+            aluminium:      { vc: 300, fz: [0.003, 0.004, 0.006, 0.008, 0.012, 0.016] },
+            softplastic:    { vc: 150, fz: [0.008, 0.015, 0.030, 0.040, 0.050, 0.060] },
+            hardplastic:    { vc: 100, fz: [0.004, 0.006, 0.010, 0.012, 0.015, 0.018] },
+            hardwood:       { vc: 450, fz: [0.008, 0.010, 0.012, 0.015, 0.018, 0.020] },
+            wood:           { vc: 500, fz: [0.010, 0.012, 0.015, 0.020, 0.025, 0.030] },
+            mdf:            { vc: 450, fz: [0.010, 0.012, 0.015, 0.017, 0.020, 0.025] },
+            brass:          { vc: 365, fz: [0.003, 0.004, 0.006, 0.008, 0.012, 0.015] },
+            steel:          { vc: 90,  fz: [0.001, 0.003, 0.004, 0.006, 0.008, 0.010] },
+        };
+        // Corresponding diameters for fz values
+        const diameterSteps = [1, 1.5, 2, 2.5, 3, 4];
+
+        document.getElementById('cncForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const material = document.getElementById('material').value;
+            const d = parseFloat(document.getElementById('d').value);   // mm
+            const z = parseInt(document.getElementById('z').value, 10); // teeth
+            const mat = materialData[material];
+            // Find closest diameter index
+            let idx = 0;
+            for (let i = 0; i < diameterSteps.length; i++) {
+                if (d >= diameterSteps[i]) idx = i;
+            }
+            const vc = mat.vc;
+            const fz = mat.fz[idx];
+            // Calculate spindle speed n [RPM]
+            const n = (vc * 1000) / (3.14 * d);
+            // Calculate feed rate vf [mm/min]
+            const vf = n * z * fz;
+            // Display results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <strong>Suggested Cutting Speed (vc):</strong> ${vc} m/min<br>
+                <strong>Suggested Tooth Feed (fz):</strong> ${fz} mm/tooth<br>
+                <strong>Spindle Speed (n):</strong> ${n.toFixed(0)} RPM<br>
+                <strong>Feed Rate (vf):</strong> ${vf.toFixed(2)} mm/min
+            `;
+        });
+    </script>
+</body>
+</html>
