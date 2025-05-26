@@ -165,8 +165,8 @@
                 };
                 let table = `<div style='overflow-x:auto;'><table border='1' cellpadding='4' style='border-collapse:collapse;min-width:600px;font-size:0.95em;'>`;
                 table += `<caption style='font-weight:bold;margin-bottom:6px;'>Reference Table: Cutting Speeds and Tooth Feeds</caption>`;
-                table += `<tr style='background:#f0f0f0;'><th>Material</th><th>vc<br>(m/min)</th>`;
-                for (let d of diameterSteps) table += `<th>Ø ${d}mm<br>fz (mm/tooth)</th>`;
+                table += `<tr style='background:#f0f0f0;'><th>Material</th><th>vc</th>`;
+                for (let d of diameterSteps) table += `<th>Ø ${d}</th>`;
                 table += `</tr>`;
                 for (const [key, val] of Object.entries(materialData)) {
                     table += `<tr><td>${matLabels[key]||key}</td><td>${val.vc}</td>`;
@@ -175,7 +175,7 @@
                     }
                     table += `</tr>`;
                 }
-                table += `</table></div>`;
+                table += `</table><div style='font-size:0.93em;color:#555;margin-top:4px;'>Cutting speed (vc) in m/min. Tooth feed (fz) in mm/tooth.</div></div>`;
                 return table;
             }
             html += `<div id='advanced-section' style='display:none; margin-top:18px;'>
