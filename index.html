@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CNC Feeds and Speeds Calculator</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1.5.10/css/pico.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
 </head>
 <body>
     <div class="container">
@@ -23,23 +23,23 @@
                 <option value="brass">Brass/Copper/Bronze</option>
                 <option value="steel">Steel</option>
             </select>
-            <div style="margin-bottom:7px;"><small>What you are cutting. Determines recommended speeds and feeds.</small></div>
+            <small>What you are cutting. Determines recommended speeds and feeds.</small>
 
             <label for="d">Cutter Diameter (d) [mm]</label>
             <input type="number" id="d" name="d" step="any" min="0.5" required>
-            <div style="margin-bottom:7px;"><small>The diameter of your end mill or router bit, in millimeters.</small></div>
+            <small>The diameter of your end mill or router bit, in millimeters.</small>
 
             <label for="z">Number of Teeth (z)</label>
             <input type="number" id="z" name="z" step="1" min="1" required value="2">
-            <div style="margin-bottom:7px;"><small>How many cutting edges (flutes) are on your tool.</small></div>
+            <small>How many cutting edges (flutes) are on your tool.</small>
 
             <label for="maxrpm">Max Spindle Speed (optional)</label>
             <input type="number" id="maxrpm" name="maxrpm" step="any" min="1" placeholder="e.g. 18000">
-            <div style="margin-bottom:7px;"><small>Your machine's maximum spindle RPM. If set, the calculator will adjust for this limit.</small></div>
+            <small>Your machine's maximum spindle RPM. If set, the calculator will adjust for this limit.</small>
 
             <label for="multiplier">Multiplier (optional)</label>
             <input type="number" id="multiplier" name="multiplier" step="0.01" min="0.1" value="1.00" placeholder="e.g. 1.20">
-            <div style="margin-bottom:7px;"><small>Use to intentionally run faster/slower than recommended (e.g. 1.20 for 20% faster).</small></div>
+            <small>Use to intentionally run faster/slower than recommended (e.g. 1.20 for 20% faster).</small>
 
             <button type="submit">Calculate</button>
         </form>
