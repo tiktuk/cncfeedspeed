@@ -233,13 +233,13 @@
                 multiplierNote = `<div style='color:#0077cc;margin-bottom:8px;'><b>Note:</b> Multiplier of ${multiplier.toFixed(2)} applied to all calculated values.</div>`;
             }
             if (maxrpm && maxrpm < n_mult) {
-                // Recalculate feed rate for max spindle speed (multiplier only applies to suggested, not to maxrpm)
-                const vf_new = maxrpm * z * fz;
+                // Recalculate feed rate for max spindle speed, multiplier still applies to feed rate
+                const vf_new = maxrpm * z * fz * multiplier;
                 html += multiplierNote;
-                html += `<strong style="color:#c00">Note:</strong> Your machine's max spindle speed (${maxrpm} RPM) is lower than the suggested value.<br><br>`;
-                html += `<strong>Adjusted Spindle Speed (n):</strong> ${maxrpm} RPM <span style="color:#888;">(suggested: ${n_mult.toFixed(0)} RPM)</span><br>`;
-                html += `<strong>Adjusted Feed Rate (vf):</strong> ${vf_new.toFixed(2)} mm/min <span style="color:#888;">(suggested: ${vf_mult.toFixed(2)} mm/min)</span><br>`;
-                adjustmentFormula = `<b>Adjusted Feed Rate:</b><br><code>vf = n<sub>max</sub> × z × fz</code><br><em>vf = adjusted feed rate in mm/min<br>n<sub>max</sub> = your machine's max spindle speed (RPM)<br>z = number of teeth<br>fz = tooth feed in mm/tooth</em><br><br>`;
+                html += `<strong style=\"color:#c00\">Note:</strong> Your machine's max spindle speed (${maxrpm} RPM) is lower than the suggested value.<br><br>`;
+                html += `<strong>Adjusted Spindle Speed (n):</strong> ${maxrpm} RPM <span style=\"color:#888;\">(suggested: ${n_mult.toFixed(0)} RPM)</span><br>`;
+                html += `<strong>Adjusted Feed Rate (vf):</strong> ${vf_new.toFixed(2)} mm/min <span style=\"color:#888;\">(suggested: ${vf_mult.toFixed(2)} mm/min)</span><br>`;
+                adjustmentFormula = `<b>Adjusted Feed Rate:</b><br><code>vf = n<sub>max</sub> × z × fz × multiplier</code><br><em>vf = adjusted feed rate in mm/min<br>n<sub>max</sub> = your machine's max spindle speed (RPM)<br>z = number of teeth<br>fz = tooth feed in mm/tooth<br>multiplier = user multiplier</em><br><br>`;
             } else {
                 // Basic results
                 html += multiplierNote;
