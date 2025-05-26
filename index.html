@@ -108,6 +108,80 @@
         // Corresponding diameters for fz values (1mm, 2mm, 3mm, 4mm, 5mm, 6mm, 8mm, 10mm, 12mm)
         const diameterSteps = [1, 2, 3, 4, 5, 6, 8, 10, 12];
 
+        // --- Reference section always visible below form ---
+        function buildMaterialTable() {
+            const matLabels = {
+                cast_aluminium: 'Cast Aluminium > 6% Si',
+                aluminium: 'Aluminum Wrought alloy',
+                softplastic: 'Soft plastic',
+                hardplastic: 'Hard plastic',
+                hardwood: 'Hard wood',
+                wood: 'Soft wood',
+                mdf: 'MDF',
+                brass: 'Brass, Copper, Bronze',
+                steel: 'Steel'
+            };
+            let table = `<div style='overflow-x:auto;'><table border='1' cellpadding='4' style='border-collapse:collapse;min-width:600px;font-size:0.95em;'>`;
+            table += `<caption style='font-weight:bold;margin-bottom:6px;'>Reference Table: Cutting Speeds and Tooth Feeds</caption>`;
+            table += `<tr style='background:#f0f0f0;'><th>Material</th><th>vc</th>`;
+            for (let d of diameterSteps) table += `<th>Ø ${d}</th>`;
+            table += `</tr>`;
+            for (const [key, val] of Object.entries(materialData)) {
+                table += `<tr><td>${matLabels[key]||key}</td><td>${val.vc}</td>`;
+                for (let i = 0; i < diameterSteps.length; i++) {
+                    table += `<td>${val.fz[i] !== undefined ? val.fz[i].toFixed(3) : '-'}</td>`;
+                }
+                table += `</tr>`;
+            }
+            table += `</table><div style='font-size:0.93em;color:#555;margin-top:4px;'>Cutting speed (vc) in m/min. Tooth feed (fz) in mm/tooth.</div></div>`;
+            return table;
+        }
+        function buildReferenceSection(adjustmentFormula = '') {
+            return `
+                <strong>Formulas Used:</strong><br>
+                <b>Spindle Speed (n):</b><br>
+                <code>n = (vc × 1000) / (π × d)</code><br>
+                <em>n = spindle speed in RPM<br>
+                vc = cutting speed in m/min<br>
+                d = cutter diameter in mm<br>
+                π (pi) ≈ 3.14</em><br><br>
+                <b>Feed Rate (vf):</b><br>
+                <code>vf = n × z × fz</code><br>
+                <em>vf = feed rate in mm/min<br>
+                n = spindle speed in RPM<br>
+                z = number of teeth<br>
+                fz = tooth feed in mm/tooth</em><br><br>
+                ${adjustmentFormula}
+                <hr style='margin:16px 0;'>
+                ${buildMaterialTable()}
+            `;
+        }
+        // Insert Reference button and section after form
+        window.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('cncForm');
+            let refBtn = document.getElementById('toggle-reference');
+            let refDiv = document.getElementById('reference-section');
+            if (!refBtn) {
+                refBtn = document.createElement('button');
+                refBtn.id = 'toggle-reference';
+                refBtn.type = 'button';
+                refBtn.style = 'margin:18px 0 0 0;display:block;';
+                refBtn.textContent = 'Show Reference';
+                form.parentNode.insertBefore(refBtn, form.nextSibling);
+            }
+            if (!refDiv) {
+                refDiv = document.createElement('div');
+                refDiv.id = 'reference-section';
+                refDiv.style = 'display:none;margin-top:12px;';
+                refDiv.innerHTML = buildReferenceSection();
+                refBtn.parentNode.insertBefore(refDiv, refBtn.nextSibling);
+            }
+            refBtn.onclick = function() {
+                refDiv.style.display = refDiv.style.display === 'none' ? 'block' : 'none';
+                refBtn.textContent = refDiv.style.display === 'none' ? 'Show Reference' : 'Hide Reference';
+            };
+        });
+
         document.getElementById('cncForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const material = document.getElementById('material').value;
@@ -150,57 +224,18 @@
                 `;
             }
             // Advanced (hidden by default)
-            // Build material table HTML
-            function buildMaterialTable() {
-                const matLabels = {
-                    cast_aluminium: 'Cast Aluminium > 6% Si',
-                    aluminium: 'Aluminum Wrought alloy',
-                    softplastic: 'Soft plastic',
-                    hardplastic: 'Hard plastic',
-                    hardwood: 'Hard wood',
-                    wood: 'Soft wood',
-                    mdf: 'MDF',
-                    brass: 'Brass, Copper, Bronze',
-                    steel: 'Steel'
-                };
-                let table = `<div style='overflow-x:auto;'><table border='1' cellpadding='4' style='border-collapse:collapse;min-width:600px;font-size:0.95em;'>`;
-                table += `<caption style='font-weight:bold;margin-bottom:6px;'>Reference Table: Cutting Speeds and Tooth Feeds</caption>`;
-                table += `<tr style='background:#f0f0f0;'><th>Material</th><th>vc</th>`;
-                for (let d of diameterSteps) table += `<th>Ø ${d}</th>`;
-                table += `</tr>`;
-                for (const [key, val] of Object.entries(materialData)) {
-                    table += `<tr><td>${matLabels[key]||key}</td><td>${val.vc}</td>`;
-                    for (let i = 0; i < diameterSteps.length; i++) {
-                        table += `<td>${val.fz[i] !== undefined ? val.fz[i].toFixed(3) : '-'}</td>`;
-                    }
-                    table += `</tr>`;
-                }
-                table += `</table><div style='font-size:0.93em;color:#555;margin-top:4px;'>Cutting speed (vc) in m/min. Tooth feed (fz) in mm/tooth.</div></div>`;
-                return table;
-            }
             html += `<div id='advanced-section' style='display:none; margin-top:18px;'>
                 <strong>Suggested Cutting Speed (vc):</strong> ${vc} m/min<br>
                 <em>vc is the recommended surface speed between the tool and the material, depending on material and tool type.</em><br><br>
                 <strong>Suggested Tooth Feed (fz):</strong> ${fz} mm/tooth<br>
                 <em>fz is the recommended distance the tool advances per tooth per revolution (chip load).</em><br><br>
-                <hr style=\"margin:16px 0;\">
-                <strong>Formulas Used:</strong><br>
-                <b>Spindle Speed (n):</b><br>
-                <code>n = (vc × 1000) / (π × d)</code><br>
-                <em>n = spindle speed in RPM<br>
-                vc = cutting speed in m/min<br>
-                d = cutter diameter in mm<br>
-                π (pi) ≈ 3.14</em><br><br>
-                <b>Feed Rate (vf):</b><br>
-                <code>vf = n × z × fz</code><br>
-                <em>vf = feed rate in mm/min<br>
-                n = spindle speed in RPM<br>
-                z = number of teeth<br>
-                fz = tooth feed in mm/tooth</em><br><br>
-                ${adjustmentFormula}
-                <hr style=\"margin:16px 0;\">
-                ${buildMaterialTable()}
-            </div>`;
+            `;
+            html += `</div>`;
+            // Update reference section formula if needed
+            if (document.getElementById('reference-section')) {
+                document.getElementById('reference-section').innerHTML = buildReferenceSection(adjustmentFormula);
+            }
+
             resultsDiv.innerHTML = html;
             // Show the toggle button
             const toggleBtn = document.getElementById('toggle-advanced');
