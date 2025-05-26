@@ -172,13 +172,16 @@
             }
             let refBtn = document.getElementById('toggle-reference');
             let refDiv = document.getElementById('reference-section');
+            // Insert reference button and section after advanced/results
+            let advancedSection = document.getElementById('toggle-advanced');
+            let insertAfter = advancedSection ? advancedSection : resultsDiv;
             if (!refBtn) {
                 refBtn = document.createElement('button');
                 refBtn.id = 'toggle-reference';
                 refBtn.type = 'button';
                 refBtn.style = 'margin:18px 0 0 0;display:block;';
                 refBtn.textContent = 'Show Reference';
-                resultsDiv.parentNode.insertBefore(refBtn, resultsDiv.nextSibling);
+                insertAfter.parentNode.insertBefore(refBtn, insertAfter.nextSibling);
             }
             if (!refDiv) {
                 refDiv = document.createElement('div');
