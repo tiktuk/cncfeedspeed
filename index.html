@@ -25,11 +25,11 @@
             </select>
             <small>What you are cutting. Determines recommended speeds and feeds.</small>
 
-            <label for="d">Cutter Diameter (d) [mm]</label>
+            <label for="d">Cutter Diameter</label>
             <input type="number" id="d" name="d" step="any" min="0.5" required>
             <small>The diameter of your end mill or router bit, in millimeters.</small>
 
-            <label for="z">Number of Teeth (z)</label>
+            <label for="z">Number of Teeth</label>
             <input type="number" id="z" name="z" step="1" min="1" required value="2">
             <small>How many cutting edges (flutes) are on your tool.</small>
 
@@ -94,22 +94,23 @@
         }
         function buildReferenceSection(adjustmentFormula = '') {
             return `
-                <strong>Formulas Used:</strong><br>
-                <b>Spindle Speed (n):</b><br>
-                <code>n = (vc × 1000) / (π × d)</code><br>
-                <em>n = spindle speed in RPM<br>
-                vc = cutting speed in m/min<br>
-                d = cutter diameter in mm<br>
-                π (pi) ≈ 3.14</em><br><br>
-                <b>Feed Rate (vf):</b><br>
-                <code>vf = n × z × fz</code><br>
-                <em>vf = feed rate in mm/min<br>
-                n = spindle speed in RPM<br>
-                z = number of teeth<br>
-                fz = tooth feed in mm/tooth</em><br><br>
-                ${adjustmentFormula}
-                <hr style='margin:16px 0;'>
-                ${buildMaterialTable()}
+                <section>
+                  <h2>Spindle Speed (n)</h2>
+                  <pre style="margin:0.2em 0 0.5em 0;"><code>n = (vc × 1000) / (π × d)</code></pre>
+                  <small>n = spindle speed in RPM<br>
+                  vc = cutting speed in m/min<br>
+                  d = cutter diameter in mm<br>
+                  π (pi) ≈ 3.14</small>
+                  <h2>Feed Rate (vf)</h2>
+                  <pre style="margin:0.2em 0 0.5em 0;"><code>vf = n × z × fz</code></pre>
+                  <small>vf = feed rate in mm/min<br>
+                  n = spindle speed in RPM<br>
+                  z = number of teeth<br>
+                  fz = tooth feed in mm/tooth</small>
+                  ${adjustmentFormula ? `<div style='margin:1em 0 0.5em 0;'>${adjustmentFormula}</div>` : ''}
+                  <hr style='margin:1.5em 0;'>
+                  ${buildMaterialTable()}
+                </section>
             `;
         }
         // Insert Reference button and section after form
