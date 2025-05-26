@@ -87,6 +87,7 @@
             <button type="submit">Calculate</button>
         </form>
         <div class="results" id="results" style="display:none;"></div>
+        <button id="toggle-advanced" style="display:none;margin-top:10px;">Show Advanced</button>
     </div>
     <script>
         // Table data for materials: [cutting speed, [tooth feeds for 1mm, 1.5mm, 2mm, 2.5mm, 3mm, 4mm]]
@@ -124,16 +125,39 @@
             // Display results
             const resultsDiv = document.getElementById('results');
             resultsDiv.style.display = 'block';
-            resultsDiv.innerHTML = `
-                <strong>Suggested Cutting Speed (vc):</strong> ${vc} m/min<br>
-                <em>vc is the recommended surface speed between the tool and the material, depending on material and tool type.</em><br><br>
-                <strong>Suggested Tooth Feed (fz):</strong> ${fz} mm/tooth<br>
-                <em>fz is the recommended distance the tool advances per tooth per revolution (chip load).</em><br><br>
+            // Basic results
+            let html = `
                 <strong>Spindle Speed (n):</strong> ${n.toFixed(0)} RPM<br>
                 <em>n is the calculated spindle speed required to achieve the suggested cutting speed, based on your cutter diameter.</em><br><br>
                 <strong>Feed Rate (vf):</strong> ${vf.toFixed(2)} mm/min<br>
                 <em>vf is the calculated linear speed at which the tool should move through the material (feed rate).</em><br>
             `;
+            // Advanced (hidden by default)
+            html += `<div id='advanced-section' style='display:none; margin-top:18px;'>
+                <strong>Suggested Cutting Speed (vc):</strong> ${vc} m/min<br>
+                <em>vc is the recommended surface speed between the tool and the material, depending on material and tool type.</em><br><br>
+                <strong>Suggested Tooth Feed (fz):</strong> ${fz} mm/tooth<br>
+                <em>fz is the recommended distance the tool advances per tooth per revolution (chip load).</em><br><br>
+            </div>`;
+            resultsDiv.innerHTML = html;
+            // Show the toggle button
+            const toggleBtn = document.getElementById('toggle-advanced');
+            toggleBtn.style.display = 'inline-block';
+            toggleBtn.textContent = 'Show Advanced';
+            // Hide advanced section by default
+            document.getElementById('advanced-section').style.display = 'none';
+            // Toggle advanced section
+            toggleBtn.onclick = function() {
+                const adv = document.getElementById('advanced-section');
+                if (adv.style.display === 'none') {
+                    adv.style.display = 'block';
+                    toggleBtn.textContent = 'Hide Advanced';
+                } else {
+                    adv.style.display = 'none';
+                    toggleBtn.textContent = 'Show Advanced';
+                }
+            };
+
         });
     </script>
 </body>
