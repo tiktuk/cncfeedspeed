@@ -91,18 +91,18 @@
     <script>
         // Table data for materials: [cutting speed, [tooth feeds for 1mm, 1.5mm, 2mm, 2.5mm, 3mm, 4mm]]
         const materialData = {
-            cast_aluminium: { vc: 200, fz: [0.002, 0.003, 0.005, 0.007, 0.011, 0.015] },
-            aluminium:      { vc: 300, fz: [0.003, 0.004, 0.006, 0.008, 0.012, 0.016] },
-            softplastic:    { vc: 150, fz: [0.008, 0.015, 0.030, 0.040, 0.050, 0.060] },
-            hardplastic:    { vc: 100, fz: [0.004, 0.006, 0.010, 0.012, 0.015, 0.018] },
-            hardwood:       { vc: 450, fz: [0.008, 0.010, 0.012, 0.015, 0.018, 0.020] },
-            wood:           { vc: 500, fz: [0.010, 0.012, 0.015, 0.020, 0.025, 0.030] },
-            mdf:            { vc: 450, fz: [0.010, 0.012, 0.015, 0.017, 0.020, 0.025] },
-            brass:          { vc: 365, fz: [0.003, 0.004, 0.006, 0.008, 0.012, 0.015] },
-            steel:          { vc: 90,  fz: [0.001, 0.003, 0.004, 0.006, 0.008, 0.010] },
+            cast_aluminium: { vc: 500, fz: [0.010, 0.010, 0.010, 0.015, 0.015, 0.025, 0.030, 0.038, 0.050] },
+            aluminium:      { vc: 500, fz: [0.010, 0.020, 0.025, 0.050, 0.050, 0.050, 0.064, 0.080, 0.100] },
+            softplastic:    { vc: 600, fz: [0.025, 0.030, 0.035, 0.045, 0.065, 0.090, 0.100, 0.200, 0.300] },
+            hardplastic:    { vc: 550, fz: [0.015, 0.020, 0.025, 0.050, 0.060, 0.080, 0.089, 0.100, 0.150] },
+            hardwood:       { vc: 450, fz: [0.020, 0.025, 0.030, 0.035, 0.045, 0.055, 0.065, 0.080, 0.090] },
+            wood:           { vc: 500, fz: [0.025, 0.030, 0.035, 0.040, 0.050, 0.060, 0.070, 0.085, 0.100] },
+            mdf:            { vc: 450, fz: [0.030, 0.040, 0.045, 0.050, 0.060, 0.070, 0.080, 0.090, 0.110] },
+            brass:          { vc: 365, fz: [0.015, 0.020, 0.025, 0.030, 0.050, 0.056, 0.065, 0.080, 0.080] },
+            steel:          { vc: 90,  fz: [0.010, 0.010, 0.012, 0.025, 0.030, 0.038, 0.045, 0.050, 0.080] },
         };
-        // Corresponding diameters for fz values
-        const diameterSteps = [1, 1.5, 2, 2.5, 3, 4];
+        // Corresponding diameters for fz values (1mm, 2mm, 3mm, 4mm, 5mm, 6mm, 8mm, 10mm, 12mm)
+        const diameterSteps = [1, 2, 3, 4, 5, 6, 8, 10, 12];
 
         document.getElementById('cncForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -126,9 +126,13 @@
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = `
                 <strong>Suggested Cutting Speed (vc):</strong> ${vc} m/min<br>
+                <em>vc is the recommended surface speed between the tool and the material, depending on material and tool type.</em><br><br>
                 <strong>Suggested Tooth Feed (fz):</strong> ${fz} mm/tooth<br>
+                <em>fz is the recommended distance the tool advances per tooth per revolution (chip load).</em><br><br>
                 <strong>Spindle Speed (n):</strong> ${n.toFixed(0)} RPM<br>
-                <strong>Feed Rate (vf):</strong> ${vf.toFixed(2)} mm/min
+                <em>n is the calculated spindle speed required to achieve the suggested cutting speed, based on your cutter diameter.</em><br><br>
+                <strong>Feed Rate (vf):</strong> ${vf.toFixed(2)} mm/min<br>
+                <em>vf is the calculated linear speed at which the tool should move through the material (feed rate).</em><br>
             `;
         });
     </script>
